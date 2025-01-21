@@ -63,7 +63,6 @@ class SymfonyBridge {
     else {
       $email->html($body);
     }
-    $head = $email->getHeaders();
     $dsn = $this->getDsn();
 
     $transport = Transport::fromDsn($dsn);
@@ -93,7 +92,17 @@ class SymfonyBridge {
       if ($this->params['auth']) {
         $credentials = implode(':', [$this->params['auth']['username'], $this->params['auth']['password']]);
       }
-      $dsn = 'smtp://' . $credentials . '@' . $this->params['host'] . ':' . $this->params['port'];
+      $hosts = explode(' ', $this->params['host']);
+      if (count($hosts) === 1) {
+        $dsn = 'smtp://' . $credentials . '@' . $this->params['host'] . ':' . $this->params['port'];
+      }
+      else {
+        $servers = [];
+        foreach ($hosts as $host) {
+          $servers[] = 'smtp://' . $credentials . '@' . $host . ':' . $this->params['port'];
+        }
+        $dsn = 'failover(' . implode(' ', $servers) . ')';
+      }
     }
     if ($this->driver === 'mail') {
       $dsn = 'native://default';

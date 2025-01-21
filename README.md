@@ -22,6 +22,12 @@ This is an [extension for CiviCRM](https://docs.civicrm.org/sysadmin/en/latest/c
 The extension is not currently set up to ship with the vendor directory - so
 the site admin needs to do that. No special configuration is otherwise required.
 
+However, if you wish to take advantage of smtp failover then enter your smtp servers
+into the normal smtp server box, but with a space between them.
+
+![Settings](images/settings.png)
+
 ## Known Issues
 
-(* FIXME *)
+I have implemented failover but not round-robin for high availability - if there is demand
+it would make sense.
