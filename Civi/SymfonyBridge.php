@@ -5,6 +5,8 @@ namespace Civi;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\Transport;
+use Symfony\Component\Mime\Part\DataPart;
+use Symfony\Component\Mime\Part\File;
 
 /**
  * This class exists to bridge the core contract for PEAR with Symfony.
@@ -43,15 +45,18 @@ class SymfonyBridge {
    *               containing a descriptive error message on
    *               failure.
    */
-  public function send($recipients, $headers, $body) {
+  public function send($recipients, $headers, $body, $originalValues) {
     \CRM_Utils_Mail_Logger::filter($this->mailer, $recipients, $headers, $body);
     $email = (new Email())
       ->from($headers['From'])
       ->to($headers['To'])
       ->replyTo($headers['Reply-To'])
       ->subject($headers['Subject']);
-    if (str_starts_with($headers['Content-Type'], 'text/plain')) {
-      $email->text($body);
+    if (!empty($originalValues['text'])) {
+      $email->text($originalValues['text']);
+    }
+    if (!empty($originalValues['html'])) {
+      $email->html($originalValues['html']);
     }
     if (!empty($headers['Cc'])) {
       $email->cc($headers['Cc']);
@@ -60,8 +65,8 @@ class SymfonyBridge {
     if (!empty($headers['Bcc'])) {
       $email->bcc($headers['Bcc']);
     }
-    else {
-      $email->html($body);
+    foreach ($originalValues['attachments'] ?? [] as $attachment) {
+      $email->addPart(new DataPart(new File($attachment['fullPath']), $attachment['fileName'], $attachment['mem_type']));
     }
     $dsn = $this->getDsn();
 
