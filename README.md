@@ -27,6 +27,9 @@ into the normal smtp server box, but with a space between them.
 
 ![Settings](images/settings.png)
 
+It is possible to set the time out by setting - but not currently in the UI - the setting
+is symfony_mail_timeout
+
 ## Known Issues
 
 I have implemented failover but not round-robin for high availability - if there is demand

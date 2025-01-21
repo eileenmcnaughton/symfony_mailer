@@ -66,6 +66,7 @@ class SymfonyBridge {
     $dsn = $this->getDsn();
 
     $transport = Transport::fromDsn($dsn);
+    $transport->getStream()->setTimeout(\Civi::settings()->get('symfony_mail_timeout'));
     $mailer = new Mailer($transport);
     $mailer->send($email);
     return TRUE;
