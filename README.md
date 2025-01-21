@@ -34,3 +34,6 @@ is symfony_mail_timeout
 
 I have implemented failover but not round-robin for high availability - if there is demand
 it would make sense.
+
+- attachments!!!
+- add support for changing the reply-to

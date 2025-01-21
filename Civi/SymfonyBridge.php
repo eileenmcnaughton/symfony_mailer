@@ -47,7 +47,7 @@ class SymfonyBridge {
     \CRM_Utils_Mail_Logger::filter($this->mailer, $recipients, $headers, $body);
     $email = (new Email())
       ->from($headers['From'])
-      ->to($recipients)
+      ->to($headers['To'])
       ->replyTo($headers['Reply-To'])
       ->subject($headers['Subject']);
     if (str_starts_with($headers['Content-Type'], 'text/plain')) {
@@ -66,9 +66,14 @@ class SymfonyBridge {
     $dsn = $this->getDsn();
 
     $transport = Transport::fromDsn($dsn);
-    $transport->getStream()->setTimeout(\Civi::settings()->get('symfony_mail_timeout'));
-    $mailer = new Mailer($transport);
-    $mailer->send($email);
+    $originalTimeout = ini_set('default_socket_timeout', \Civi::settings()->get('symfony_mail_timeout'));
+    try {
+      $mailer = new Mailer($transport);
+      $mailer->send($email);
+    }
+    finally {
+      ini_set('default_socket_timeout', $originalTimeout);
+    }
     return TRUE;
   }
 
